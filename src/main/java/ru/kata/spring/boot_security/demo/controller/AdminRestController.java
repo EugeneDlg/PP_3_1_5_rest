@@ -1,10 +1,13 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
+
 
 import java.security.Principal;
 import java.util.List;
@@ -64,8 +67,8 @@ public class AdminRestController {
     }
 
     @GetMapping("/getUsers")
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public ResponseEntity<List<User>> getUsers() {
+        return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/getCurrentUser")
@@ -75,5 +78,11 @@ public class AdminRestController {
         User u = currentUser.orElse(null);
         System.out.println("AAA" + u.getEmail());
         return u;
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Void> createUser(@RequestBody User user){
+        userService.addUser(user);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
