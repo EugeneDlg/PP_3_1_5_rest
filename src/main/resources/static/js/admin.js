@@ -5,16 +5,18 @@ const currentUserURL = '/api/admin/getCurrentUser';
 async function currentUserShow() {
     let currentUser = fetch(currentUserURL).then(response => response.json());
     currentUser.then(user => {
-            console.log("Current user (object): " + user);
-            document.getElementById("topnavbar-current-user").innerHTML = user.email;
-
-            let roles = '';
-            user.roles.forEach(role => {
-                roles += role.roleName.replace("ROLE_", "  ");
-            });
-            document.getElementById("topnavbar-current-roles").innerHTML = roles;
-        }
-    );
+        console.log("Current user (email): " + user.email);
+        document.getElementById("topnavbar-current-user").innerHTML = user.email;
+        let roles = '';
+        user.roles.forEach(role => {
+            roles += role.roleName.replace("ROLE_", "  ");
+        });
+        document.getElementById("topnavbar-current-roles").innerHTML = roles;
+        document.getElementById("table-current-user-rows").innerHTML = "<tr><td>" + user.id + "</td><td>"
+            + user.username + "</td><td>" + user.age + "</td><td>"
+            + user.email + "</td><td>"
+            + roles + "</td></tr>";
+    });
 }
 
 
@@ -41,16 +43,30 @@ async function allUsersTableShow() {
         user => {
             let rolesString = '';
             user.roles.forEach(role => {
-                rolesString += role.roleName.replace("ROLE_", "  ");
+                rolesString += role.roleName.replace("ROLE_", "");
             });
             allUsersString += "<tr><td>" + user.id + "</td><td>"
                 + user.username + "</td><td>" + user.age + "</td><td>"
                 + user.email + "</td><td>"
-                + rolesString + "</td></tr>";
+                + rolesString + "</td><td><button type='button' class='btn btn-info' data-bs-toggle='modal' data-bs-target='#edit" + user.id + "'>Edit</button></td><div class='modal fade' tabindex='-1' id='edit" + user.id +"' role='dialog' aria-labelledby='editModalLabel' aria-hidden='true'><div class='modal-dialog modal-dialog-scrollable' role='document'><div class='modal-content'><div class='modal-header'><h5 class='modal-title'>Edit user</h5><button type='button' class='close' data-bs-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div><div class='modal-body text-center'><form method='POST' action='/admin/update?id=" + user.id +"'><input type='hidden' name='${_csrf.parameterName}' value='${_csrf.token}'/><div class='container'><div class='row justify-content-center '><div class='col-7'><div class='mb-1'><label class='fw-bold' for='username'>Username:</label></div><div class='mb-2'><input type='text' name='username'  value='" + user.username +"' id='username' required/></div><div class='mb-1'><label class='fw-bold' for='userPassword'>Password:</label></div><div class='mb-2'><input type='password' id='userPassword' required name='password' value=''/></div><div class='mb-1'><label class='fw-bold' for='email'>Email:</label></div><div class='mb-2'><input type='email' name='email' value='" + user.email + "' id='email' required /></div><div class='mb-1'><label class='fw-bold' for='age'>Age:</label></div><div class='mb-2'><input type='number' class='form-control' min='0' max='120' name='age' value='" + user.age + "' id='age' required /></div><div class='mb-1'><label class='fw-bold'>Role</label></div><div class='mb-2'><select class='form-select' aria-label='Role selection' id='roles" + user.id + "' name='roles' multiple='multiple'  size='2'></select></div></div></div></div><div class='modal-footer'><button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Close</button><button type='submit' class='btn btn-primary'>Edit</button></div></form></div></div></div></div></tr>";
         }
     );
     // console.log("AllUsersTable Rows: " + allUsersString);
     document.getElementById("table-all-users-rows").innerHTML = allUsersString;
+    let rolesListResponse = await fetch(allRolesURL);
+    let rolesListJson = await rolesListResponse.json();
+    rolesListJson.forEach(role => {
+        role.roleName = role.roleName.replace("ROLE_", "");
+        // document.getElementById("new_roles").options.add(
+        //     new Option(role.roleName, role.id));
+    });
+    allUsersListJson.forEach(user => {
+        rolesListJson.forEach( role => {
+            document.getElementById("roles" + user.id).options.add(
+                new Option(role.roleName, role.id, true, user.roles.includes(role)));
+        });
+    });
+
 }
 
 async function newUserFormShow() {
@@ -75,12 +91,12 @@ newUserFormShow();
 //     await getAllRoles();
 // })();
 
-// ??? Нужно отобразить список полученных ролей в форме добавления нового юзера
+
 //убрать ROLES_ из селектов!!!!!!
 
 var handle201 = function(data, textStatus, jqXHR) {
     allUsersTableShow();
-    $('#innerTab a:first').tab('show');
+    $('#allusers-tab').tab('show');
 };
 $(document).ready(function () {
     $("#new-user-form").on("submit", function(){
@@ -108,16 +124,6 @@ $(document).ready(function () {
             statusCode: {
                 201: handle201,
             },
-            // success: function(data){
-            //     alert(data.ok);
-            //     if (data.ok){
-            //         alert("HURAY");
-            //         // allUsersTableShow();
-            //     }
-            //     else {
-            //         alert("Achtung!");
-            //     }
-            // },
             error: function (data) {
                 console.log(data);
             }
