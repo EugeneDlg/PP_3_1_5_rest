@@ -1,17 +1,14 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-
-import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 
 @RestController
@@ -25,45 +22,9 @@ public class AdminRestController {
         this.roleService = roleService;
     }
 
-//    @GetMapping()
-//    public String getUsers(@ModelAttribute("user") User user, ModelMap modelMap, Principal principal) {
-//        Optional<User> currentUser = userService.getByUsername(principal.getName());
-//        List<User> users = userService.getUsers();
-//        List<Role> roleList = roleService.getRoles();
-//        modelMap.addAttribute("users", users);
-//        modelMap.addAttribute("roleList", roleList);
-//        modelMap.addAttribute("currentUser", currentUser.orElseThrow(
-//                () -> new UsernameNotFoundException("Principal user not found")));
-//        return "admin";
-//    }
-
-//    @PostMapping(value = "/create")
-//    public String createUser(@ModelAttribute("user") User user) {
-//        userService.addUser(user);
-//        return "redirect:/admin";
-//    }
-
-//    @PostMapping(value = "/update")
-//    public String updateUser(@ModelAttribute("user") User user, @RequestParam("id") Long id) {
-//        if (userService.getById(id).isEmpty()) {
-//            return "notfound";
-//        }
-//        userService.updateUser(id, user);
-//        return "redirect:/admin";
-//    }
-
-//    @PostMapping(value = "/delete")
-//    public String deleteUser(@RequestParam("id") Long id) {
-//        if (userService.getById(id).isEmpty()) {
-//            return "notfound";
-//        }
-//        userService.deleteUser(id);
-//        return "redirect:/admin";
-//    }
-
     @GetMapping("/getRoles")
-    public List<Role> getRoles() {
-        return roleService.getRoles();
+    public ResponseEntity<List<Role>> getRoles() {
+        return new ResponseEntity<>(roleService.getRoles(), HttpStatus.OK);
     }
 
     @GetMapping("/getUsers")
@@ -71,18 +32,27 @@ public class AdminRestController {
         return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/getCurrentUser")
-    public User getCurrentUser(Principal principal) {
-
-        Optional<User> currentUser = userService.getByUsername(principal.getName());
-        User u = currentUser.orElse(null);
-        System.out.println("AAA" + u.getEmail());
-        return u;
-    }
-
     @PostMapping("/create")
     public ResponseEntity<Void> createUser(@RequestBody User user){
         userService.addUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/update")
+    public ResponseEntity<Void> updateUser(@RequestBody User user, @RequestParam("id") Long id) {
+        if (userService.getById(id).isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.updateUser(id, user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/delete")
+    public ResponseEntity<Void> deleteUser(@RequestParam("id") Long id) {
+        if (userService.getById(id).isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

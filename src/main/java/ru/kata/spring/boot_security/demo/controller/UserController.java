@@ -1,18 +1,18 @@
 package ru.kata.spring.boot_security.demo.controller;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 import java.security.Principal;
 import java.util.Optional;
 
-@Controller
-@RequestMapping("/user")
+@RestController
+@RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
 
@@ -20,14 +20,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping()
-    public String getUser(ModelMap modelMap, Principal principal) {
+    @GetMapping("/getCurrentUser")
+    public ResponseEntity<User> getCurrentUser(Principal principal) {
         Optional<User> currentUser = userService.getByUsername(principal.getName());
-        if (currentUser.isEmpty()) {
-            return "notfound";
-        }
-        modelMap.addAttribute("currentUser", currentUser.orElseThrow(
-                () -> new UsernameNotFoundException("Principal user not found")));
-        return "user";
+        return new ResponseEntity<>(currentUser.orElse(null), HttpStatus.OK);
     }
+
 }
