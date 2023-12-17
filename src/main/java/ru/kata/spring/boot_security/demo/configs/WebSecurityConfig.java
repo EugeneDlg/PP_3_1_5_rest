@@ -30,13 +30,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/xuser/**").hasAnyRole("USER", "ADMIN")
-                .antMatchers(HttpMethod.GET, "/xadmin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/user/**").hasAnyRole("USER", "ADMIN")
+                .antMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .antMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().successHandler(successUserHandler)
+                .formLogin()
+//                .usernameParameter("email")
+//                .passwordParameter("password")
+                .successHandler(successUserHandler)
                 .and()
                 .logout()
 //                .invalidateHttpSession(true)
@@ -54,7 +57,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
-
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {

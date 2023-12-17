@@ -113,19 +113,19 @@ async function editSubmit(element){
             id: selectedOptions[i].value
         });
     }
+    let p = document.createElement("span");
+    p.innerHTML = "<span style='color: red'>Required</span>";
+    p.setAttribute("class", "warn_label");
     if (username.value.trim() === "") {
         username.classList.add("err_input");
+        username.after(p);
         return;
     }
     if (password.value.trim() === "") {
         password.classList.add("err_input");
+        password.after(p);
         return;
     }
-    // if (!$("#edit_form_" + userId)[0].checkValidity())
-    // {
-    //     alert("MISSING");
-    //
-    // }
     let paramDict = {
         method: 'POST',
         headers: {
@@ -156,6 +156,10 @@ function removeWarnings(element){
     let password = document.getElementById("edit_password_" + userId);
     username.classList.remove("err_input");
     password.classList.remove("err_input");
+    let labels = document.getElementsByClassName("warn_label");
+    for(let i = 0; i < labels.length; i++){
+        labels[i].remove();
+    }
     element.click();
 }
 
