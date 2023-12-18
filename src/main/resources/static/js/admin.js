@@ -203,6 +203,7 @@ const handle201 = async function (data, textStatus, jqXHR) {
     $('#allusers-tab').tab('show');
 };
 
+//Для HTTP-запроса можно было также использовать fetch. Здесь используем jQuery
 $(document).ready(function () {
     $("#new-user-form").on("submit", function(){
         let roleList = [];

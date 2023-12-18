@@ -32,8 +32,17 @@ public class AdminRestController {
         return new ResponseEntity<>(userService.getUsers(), HttpStatus.OK);
     }
 
+    @GetMapping("/getUser")
+    public ResponseEntity<User> getUser(@RequestParam("id") Long id) {
+        User user = userService.getById(id).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @PostMapping("/create")
-    public ResponseEntity<Void> createUser(@RequestBody User user){
+    public ResponseEntity<Void> createUser(@RequestBody User user) {
         userService.addUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -41,7 +50,7 @@ public class AdminRestController {
     @PostMapping(value = "/update")
     public ResponseEntity<Void> updateUser(@RequestBody User user, @RequestParam("id") Long id) {
         if (userService.getById(id).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateUser(id, user);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -50,7 +59,7 @@ public class AdminRestController {
     @PostMapping(value = "/delete")
     public ResponseEntity<Void> deleteUser(@RequestParam("id") Long id) {
         if (userService.getById(id).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.OK);
