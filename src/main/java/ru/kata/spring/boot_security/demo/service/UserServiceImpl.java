@@ -9,6 +9,8 @@ import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.Integer.max;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -54,6 +56,9 @@ public class UserServiceImpl implements UserService {
         if (getByUsername(user.getUsername()).isPresent()) {
             return;
         }
+        user.setUsername(user.getUsername().strip());
+        user.setEmail(user.getEmail().strip());
+        user.setAge(max(0, user.getAge()));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
@@ -70,9 +75,9 @@ public class UserServiceImpl implements UserService {
     public void updateUser(Long id, User newUser) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            user.get().setUsername(newUser.getUsername());
+            user.get().setUsername(newUser.getUsername().strip());
             user.get().setPassword(bCryptPasswordEncoder.encode(newUser.getPassword()));
-            user.get().setEmail(newUser.getEmail());
+            user.get().setEmail(newUser.getEmail().strip());
             user.get().setAge(newUser.getAge());
             user.get().setRoles(newUser.getRoles());
             userRepository.save(user.get());

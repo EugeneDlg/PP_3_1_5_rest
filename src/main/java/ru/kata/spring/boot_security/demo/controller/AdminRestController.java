@@ -34,6 +34,9 @@ public class AdminRestController {
 
     @GetMapping("/getUser")
     public ResponseEntity<User> getUser(@RequestParam("id") Long id) {
+        if (id == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         User user = userService.getById(id).orElse(null);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -49,7 +52,7 @@ public class AdminRestController {
 
     @PostMapping(value = "/update")
     public ResponseEntity<Void> updateUser(@RequestBody User user, @RequestParam("id") Long id) {
-        if (userService.getById(id).isEmpty()) {
+        if (id == null || userService.getById(id).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateUser(id, user);
@@ -58,7 +61,7 @@ public class AdminRestController {
 
     @PostMapping(value = "/delete")
     public ResponseEntity<Void> deleteUser(@RequestParam("id") Long id) {
-        if (userService.getById(id).isEmpty()) {
+        if (id == null || userService.getById(id).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.deleteUser(id);
